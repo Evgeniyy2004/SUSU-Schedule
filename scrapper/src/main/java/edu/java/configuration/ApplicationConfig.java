@@ -2,12 +2,18 @@ package edu.java.configuration;
 
 import edu.java.siteclients.BotClient;
 import io.swagger.api.JdbcScheduleRepository;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.sql.DataSource;
 import listener.ScheduleUpdaterScheduler;
 import lombok.Getter;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -64,7 +70,6 @@ public class ApplicationConfig {
                 .flatMap(Mono::error)
                 .thenReturn(clientResponse))
             .retryWhen(this.retryConst());
-
     }
 
     private RetryBackoffSpec retryConst() {
@@ -81,31 +86,13 @@ public class ApplicationConfig {
         return factory.createClient(BotClient.class);
     }
 
-    @Bean(name = "entityManagerFactory")
-    public LocalSessionFactoryBean sessionFactory(DataSource source) {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(source);
-        sessionFactory.setHibernateProperties(hibernateProperties());
-        return sessionFactory;
+    @Bean
+    public DSLContext dslContext() throws SQLException {
+            Connection conn =
+                DriverManager.getConnection("jdbc:postgresql://localhost:5433/schedule", "postgres", "postgres");
+            DSLContext context = DSL.using(conn, SQLDialect.POSTGRES);
+            return context;
     }
 
-    @Bean
-    public HibernateTransactionManager transactionManager(DataSource source) {
-        HibernateTransactionManager txManager = new HibernateTransactionManager();
-        txManager.setSessionFactory(sessionFactory(source).getObject());
-        return txManager;
-    }
 
-    @Bean
-    public Properties hibernateProperties() {
-        Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty(
-            "hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        return hibernateProperties;
-    }
-
-    @Bean
-    public JdbcTemplate template(DataSource source) {
-        return new JdbcTemplate(source);
-    }
 }

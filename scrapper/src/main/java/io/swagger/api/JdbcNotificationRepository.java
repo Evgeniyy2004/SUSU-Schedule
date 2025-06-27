@@ -1,68 +1,71 @@
 package io.swagger.api;
 
-import edu.java.model.ApiException;
-import edu.java.model.ClassResponse;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-import java.io.IOException;
-import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.Map;
+import edu.java.jooq.Tables;
+import edu.java.jooq.tables.*;
+import edu.java.jooq.tables.records.GroupsRecord;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import static edu.java.jooq.Tables.GROUPS;
+import static edu.java.jooq.Tables.STUDENT;
 
 @Repository
 public class JdbcNotificationRepository {
-    private static final String QUERY = "select * from Student where Id=?";
-    private static final String GROUPCHECK = "select * from Groups where GroupName=?";
-    private static final String GROUPUPDATE = "insert into Groups (GroupName) values (?)";
-    private final JdbcTemplate jdbcTemplate;
+    private final DSLContext context;
     private final JdbcScheduleRepository scheduleRepository;
 
     @Autowired
-    public JdbcNotificationRepository(JdbcTemplate jdbcTemplate, JdbcScheduleRepository scheduleRepository) {
-        this.jdbcTemplate = jdbcTemplate;
+    public JdbcNotificationRepository(DSLContext context, JdbcScheduleRepository scheduleRepository) {
+        this.context = context;
         this.scheduleRepository = scheduleRepository;
     }
 
     public void save(Long id, String group) {
-        var res = jdbcTemplate.queryForList(GROUPCHECK, group);
-        var res1 = jdbcTemplate.queryForList(QUERY, id);
+        var res = context.select()
+            .from(GROUPS).where(GROUPS.ID.eq(Integer.valueOf(group))).fetchOptional();
+        var isAbsent = check(id);
         if (res.isEmpty()) {
-           jdbcTemplate.update(GROUPUPDATE, group);
+            context.insertInto(GROUPS).set(new GroupsRecord()
+                .with(Groups.GROUPS.GROUPNAME, group)).execute();
             var addedClasses = scheduleRepository.update();
             scheduleRepository.updateAllClasses(new HashMap<>(), addedClasses.getRight());
         }
-        var groupid = jdbcTemplate.queryForObject("select Id from Groups where GroupName=?",
-            Integer.class, group);
-        if (res1.isEmpty()) {
-            jdbcTemplate.update("INSERT INTO Student " +
-                "VALUES (?,?,?,?)", id, groupid,false,null);
+        var groupid = context.select(Groups.GROUPS.ID)
+            .from(GROUPS).where(GROUPS.GROUPNAME.eq(group)).fetchOne();
 
+        if (isAbsent) {
+            context.insertInto(STUDENT).set(STUDENT.ID, id)
+                .set(STUDENT.GROUPID,groupid.value1()).execute();
         } else {
-            jdbcTemplate.update("Update Student set GroupId=? where Id=?", groupid, id);
+            context.update(STUDENT).set(STUDENT.GROUPID, groupid.value1())
+                .where(STUDENT.ID.eq(id)).execute();
         }
     }
 
     public void updateNotifications(Long id, boolean notification) {
-        jdbcTemplate.update("Update Student set IsNotified=? where Id=?", notification, id);
+        context.update(STUDENT).set(STUDENT.ISNOTIFIED, notification)
+            .where(STUDENT.ID.eq(id)).execute();
     }
 
     public Boolean getNotification(Long id) {
-        return jdbcTemplate.queryForObject
-            ("Select IsNotified from Student where Id="+id,Boolean.class);
+        return context.select(STUDENT.ISNOTIFIED)
+            .from(STUDENT).where(STUDENT.ID.eq(id)).fetchOne().value1();
     }
 
     public void updateMailing(Long id, Integer mailing) {
-        jdbcTemplate.update("Update Student set MailingTime=? where Id=?", mailing, id);
+        context.update(STUDENT).set(STUDENT.MAILINGTIME, mailing)
+            .where(STUDENT.ID.eq(id)).execute();
     }
 
     public Boolean getMailing(Long id) {
-        return jdbcTemplate.queryForObject
-            ("Select MailingTime from Student where Id="+id,Integer.class)!=null;
+        return context.select(STUDENT.MAILINGTIME)
+            .from(STUDENT).where(STUDENT.ID.eq(id)).fetchOne().value1()!=null;
     }
 
-    public boolean check(Long id){
-        return !jdbcTemplate.queryForList("Select * from Student where Id=?", id).isEmpty();
+    public boolean check(Long id) {
+        return context.select()
+            .from(STUDENT).where(STUDENT.ID.eq(id)).fetchOptional().isEmpty();
     }
 }

@@ -1,11 +1,14 @@
 package io.swagger.api;
 
+import edu.java.jooq.tables.Groups;
 import edu.java.model.ClassResponse;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,34 +18,48 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.Select;
+import org.jooq.TableField;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
+import static edu.java.jooq.Tables.CLASSES;
+import static edu.java.jooq.Tables.GROUPS;
+import static edu.java.jooq.tables.Student.STUDENT;
+import static org.jooq.impl.DSL.currentDate;
 
 @Repository
 @SuppressWarnings("all")
 public class JdbcScheduleRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final DSLContext context;
 
     @Autowired
-    public JdbcScheduleRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public JdbcScheduleRepository(DSLContext context) {
+        this.context = context;
     }
 
     public void removeOld() {
-        String query = ("DELETE FROM Classes WHERE ClassDate < CURRENT_DATE;");
-        jdbcTemplate.update(query);
+        context.deleteFrom(CLASSES)
+            .where(CLASSES.CLASSDATE.lessThan(LocalDate.now())).execute();
     }
 
     public List<ClassResponse> findAll(Long id, String timediff) {
-        String sql;
+        String res;
+        List<TableField> fields = Arrays.asList(CLASSES.CLASSDATE,CLASSES.DISCIPLINE,
+            CLASSES.CLASSTIME,CLASSES.CLASSROOM);
         if (timediff.equals("0")) {
+            context.select(fields)
+                .from(CLASSES).join(STUDENT).
+                on(STUDENT.GROUPID.eq(CLASSES.GROUPID))
+
+                .where(GROUPS.GROUPNAME.eq(group)).fetchOne();
             sql = "SELECT ClassDate,Discipline,ClassTime,Classroom\n" +
                 "FROM classes \n JOIN Student on Student.GroupId=classes.GroupId Where Student.Id=" + id +
                 " AND ClassDate = CURRENT_DATE;";
@@ -56,23 +73,7 @@ public class JdbcScheduleRepository {
                 " AND ClassDate <= DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '6 days';";
         }
 
-        var res = jdbcTemplate.query(sql, new ResultSetExtractor<List<List<String>>>() {
-            @Override
-            public List<List<String>> extractData(ResultSet rs) throws SQLException {
-                List<List<String>> result = new ArrayList<>();
 
-                while (rs.next()) {
-                    List<String> row = new ArrayList<>();
-                    row.add(rs.getString("ClassDate"));
-                    row.add(rs.getString("Discipline"));
-                    row.add(rs.getString("ClassTime"));
-                    row.add(rs.getString("Classroom"));
-                    result.add(row);
-                }
-
-                return result;
-            }
-        });
         Map<String, ClassResponse> map2 = new HashMap<String, ClassResponse>();
         for (List<String> row : res) {
             if (!map2.containsKey(row.get(0))) {
@@ -95,26 +96,29 @@ public class JdbcScheduleRepository {
         Map<String, List<ClassResponse>> result = new HashMap<>();
         Map<Pair<String, String>, ClassResponse> map = new HashMap<>();
 
-        var res = jdbcTemplate.query("select * from Classes " +
-            "join Groups on Classes.GroupId=Groups.Id order by ClassTime", new ResultSetExtractor<List<List<String>>>() {
-            @Override
-            public List<List<String>> extractData(ResultSet rs) throws SQLException {
-                List<List<String>> result = new ArrayList<>();
-                while (rs.next()) {
-                    List<String> row = new ArrayList<>();
-                    row.add(rs.getString("GroupName"));
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-                    var date =sdf.format(rs.getDate("ClassDate"));
-                    row.add(date);
-                    row.add(rs.getString("Discipline"));
-                    row.add(rs.getString("ClassTime"));
-                    row.add(rs.getString("Classroom"));
-                    result.add(row);
-                }
+        var res = jdbcTemplate.query(
+            "select * from Classes " +
+                "join Groups on Classes.GroupId=Groups.Id order by ClassTime",
+            new ResultSetExtractor<List<List<String>>>() {
+                @Override
+                public List<List<String>> extractData(ResultSet rs) throws SQLException {
+                    List<List<String>> result = new ArrayList<>();
+                    while (rs.next()) {
+                        List<String> row = new ArrayList<>();
+                        row.add(rs.getString("GroupName"));
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+                        var date = sdf.format(rs.getDate("ClassDate"));
+                        row.add(date);
+                        row.add(rs.getString("Discipline"));
+                        row.add(rs.getString("ClassTime"));
+                        row.add(rs.getString("Classroom"));
+                        result.add(row);
+                    }
 
-                return result;
+                    return result;
+                }
             }
-        });
+        );
 
         Map<Pair<String, String>, ClassResponse> updated = new HashMap<>();
         Map<Pair<String, String>, ClassResponse> added = new HashMap<>();
@@ -122,7 +126,7 @@ public class JdbcScheduleRepository {
             if (!map.containsKey(Pair.of(row.get(0), row.get(1)))) {
                 var currResponse = new ClassResponse();
                 currResponse.setDay(row.get(1));
-                map.put(Pair.of(row.get(0), row.get(1)),currResponse);
+                map.put(Pair.of(row.get(0), row.get(1)), currResponse);
             }
             map.get(Pair.of(row.get(0), row.get(1))).addClass(row.get(3), row.get(4), row.get(2));
         }
@@ -133,7 +137,7 @@ public class JdbcScheduleRepository {
                 for (Map.Entry<Pair<String, String>, ClassResponse> entry : neww.entrySet()) {
                     var key = entry.getKey();
                     var value = entry.getValue();
-                    if(!new SimpleDateFormat("dd.MM.yyyy").parse(key.getValue()).before(new Date())) {
+                    if (!new SimpleDateFormat("dd.MM.yyyy").parse(key.getValue()).before(new Date())) {
                         if (map.containsKey(key) && !map.get(key).equals(value)) {
                             updated.put(key, value);
                         } else if (!map.containsKey(key)) {
@@ -153,7 +157,7 @@ public class JdbcScheduleRepository {
         Map<Long, List<ClassResponse>> result = new HashMap<>();
         Set<String> changedGroups = new HashSet<>();
         for (Map.Entry<Pair<String, String>, ClassResponse> entry : data.entrySet()) {
-            changedGroups.add("\'"+entry.getKey().getLeft()+"\'");
+            changedGroups.add("\'" + entry.getKey().getLeft() + "\'");
         }
 
         if (changedGroups.size() == 0) {
@@ -161,8 +165,9 @@ public class JdbcScheduleRepository {
         }
         String groupsStr = String.join(",", changedGroups);
 
-        var sql = "select  Student.Id AS student_id, Groups.groupname as group_name  FROM Student join Groups on Student.GroupId=Groups.Id" +
-            " where Groups.groupname in (" + groupsStr + ") and IsNotified=TRUE";
+        var sql =
+            "select  Student.Id AS student_id, Groups.groupname as group_name  FROM Student join Groups on Student.GroupId=Groups.Id" +
+                " where Groups.groupname in (" + groupsStr + ") and IsNotified=TRUE";
 
         var pairs = jdbcTemplate.query(sql
             , new ResultSetExtractor<List<Pair<Long, String>>>() {
