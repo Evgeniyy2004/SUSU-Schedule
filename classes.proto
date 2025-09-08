@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package model;
+
+message ScheduleRequest {
+    int64 id = 1;
+    string time = 2;
+}
+
+message ScheduleResponse {
+    string day = 1;
+    repeated string subjects = 2;
+    repeated string time_list = 3;
+    repeated string classrooms = 4;
+}
+
+message StudentId {
+    int64 id = 1;
+}
+
+message Mailing {
+    int64 id = 1;
+    string time = 2;
+}
+
+message SettingUpdate {
+    int64 id = 1;
+    bool enable = 2;
+}
+
+message Group {
+    int64 id = 1;
+    string group_number = 2;
+}
+
+message IsEnabled {
+    bool value = 1;
+}
+
+message NotificationSettings {
+    int64 id = 1;
+    bool is_notified = 2;
+}
+
+
+

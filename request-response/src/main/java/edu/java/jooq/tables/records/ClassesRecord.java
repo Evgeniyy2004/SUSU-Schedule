@@ -16,7 +16,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
-public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements Record6<Integer, Long, String, LocalDate, String, String> {
+public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements Record6<Integer, Integer, String, LocalDate, String, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,12 +28,12 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
         return (Integer) get(0);
     }
 
-    public void setGroupid(Long value) {
+    public void setGroupid(Integer value) {
         set(1, value);
     }
 
-    public Long getGroupid() {
-        return (Long) get(1);
+    public Integer getGroupid() {
+        return (Integer) get(1);
     }
 
     public void setDiscipline(String value) {
@@ -82,12 +82,12 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     // -------------------------------------------------------------------------
 
     @Override
-    public Row6<Integer, Long, String, LocalDate, String, String> fieldsRow() {
+    public Row6<Integer, Integer, String, LocalDate, String, String> fieldsRow() {
         return (Row6) super.fieldsRow();
     }
 
     @Override
-    public Row6<Integer, Long, String, LocalDate, String, String> valuesRow() {
+    public Row6<Integer, Integer, String, LocalDate, String, String> valuesRow() {
         return (Row6) super.valuesRow();
     }
 
@@ -97,7 +97,7 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     }
 
     @Override
-    public Field<Long> field2() {
+    public Field<Integer> field2() {
         return Classes.CLASSES.GROUPID;
     }
 
@@ -127,7 +127,7 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     }
 
     @Override
-    public Long component2() {
+    public Integer component2() {
         return getGroupid();
     }
 
@@ -157,7 +157,7 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     }
 
     @Override
-    public Long value2() {
+    public Integer value2() {
         return getGroupid();
     }
 
@@ -188,7 +188,7 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     }
 
     @Override
-    public ClassesRecord value2(Long value) {
+    public ClassesRecord value2(Integer value) {
         setGroupid(value);
         return this;
     }
@@ -218,7 +218,7 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     }
 
     @Override
-    public ClassesRecord values(Integer value1, Long value2, String value3, LocalDate value4, String value5, String value6) {
+    public ClassesRecord values(Integer value1, Integer value2, String value3, LocalDate value4, String value5, String value6) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -236,7 +236,7 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
         super(Classes.CLASSES);
     }
 
-    public ClassesRecord(Integer id, Long groupid, String discipline, LocalDate classdate, String classtime, String classroom) {
+    public ClassesRecord(Integer id, Integer groupid, String discipline, LocalDate classdate, String classtime, String classroom) {
         super(Classes.CLASSES);
 
         setId(id);

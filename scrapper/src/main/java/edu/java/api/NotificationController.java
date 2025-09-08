@@ -1,37 +1,32 @@
-package io.swagger.api;
+package edu.java.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.services.JdbcNotificationService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import edu.java.services.JdbcNotificationService;
 
 @RestController
-@Validated
 public class NotificationController {
 
-    @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
+
     private JdbcNotificationService notificationService;
 
-    @org.springframework.beans.factory.annotation.Autowired
     public NotificationController(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @PostMapping("/{id}/mailing")
-    @Valid
+    @Operation
     public ResponseEntity mailingIdPost(
         @Parameter(in = ParameterIn.PATH, description = "", required = true, schema = @Schema()) @PathVariable
         Integer id, @RequestParam("do") Integer mailing
@@ -40,9 +35,8 @@ public class NotificationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @GetMapping("/{id}/mailing")
-    @Valid
+    @Operation
     public ResponseEntity<Boolean> mailingIdGet(
         @PathVariable("id")
         Integer id
@@ -51,7 +45,7 @@ public class NotificationController {
     }
 
     @PostMapping("/{id}/group")
-    @Valid
+    @Operation
     public ResponseEntity groupIdPost(
         @PathVariable("id")
         Integer id, @RequestParam("new") String group
@@ -61,7 +55,7 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}/group")
-    @Valid
+    @Operation
     public ResponseEntity<Boolean> groupIdCheck(
         @PathVariable("id")
         Integer id
@@ -71,6 +65,7 @@ public class NotificationController {
     }
 
     @PostMapping("/{id}/notify")
+    @Operation
     public ResponseEntity notifyIdPost(
         @PathVariable("id")
         Integer id, @RequestParam("new") boolean notify
@@ -80,7 +75,9 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}/notify")
-    public ResponseEntity<Boolean> notifyIdGet(@PathVariable("id")
+    @Operation
+    public ResponseEntity<Boolean> notifyIdGet(
+        @PathVariable("id")
         Integer id
     ) {
         return ResponseEntity.ok(notificationService.getNotification(id));

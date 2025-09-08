@@ -1,15 +1,13 @@
 package edu.java.configuration;
 
 import edu.java.siteclients.BotClient;
-import io.swagger.api.JdbcScheduleRepository;
+import edu.java.repos.JdbcScheduleRepository;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Properties;
-import javax.sql.DataSource;
-import listener.ScheduleUpdaterScheduler;
+import edu.java.listener.ScheduleUpdaterScheduler;
 import lombok.Getter;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -17,13 +15,8 @@ import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -33,9 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
 
-@ComponentScan(basePackages = "io.swagger")
 @Configuration
-@EnableScheduling
 @PropertySource("classpath:application.yml")
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public class ApplicationConfig {
@@ -94,5 +85,8 @@ public class ApplicationConfig {
             return context;
     }
 
-
+    @Bean
+    public JdbcScheduleRepository jdbcScheduleRepository(DSLContext context) {
+        return new JdbcScheduleRepository(context);
+    }
 }

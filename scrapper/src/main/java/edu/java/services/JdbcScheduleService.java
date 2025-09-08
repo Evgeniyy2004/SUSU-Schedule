@@ -1,23 +1,19 @@
-package io.swagger.services;
+package edu.java.services;
 
 import edu.java.model.ClassResponse;
-import io.swagger.api.JdbcScheduleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import edu.java.repos.JdbcScheduleRepository;
 
 @Service
-public class JdbcScheduleService{
-
+public class JdbcScheduleService {
 
     private final JdbcScheduleRepository repo;
 
 
-    @Autowired
     public JdbcScheduleService(JdbcScheduleRepository repo) {
         this.repo = repo;
     }
-
 
     public List<ClassResponse> getSchedule(long tgChatId, String timediff) {
         return repo.findAll(tgChatId, timediff);

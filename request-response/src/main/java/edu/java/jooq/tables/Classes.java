@@ -45,7 +45,7 @@ public class Classes extends TableImpl<ClassesRecord> {
 
     public final TableField<ClassesRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
 
-    public final TableField<ClassesRecord, Long> GROUPID = createField(DSL.name("groupid"), SQLDataType.BIGINT, this, "");
+    public final TableField<ClassesRecord, Integer> GROUPID = createField(DSL.name("groupid"), SQLDataType.INTEGER, this, "");
 
     public final TableField<ClassesRecord, String> DISCIPLINE = createField(DSL.name("discipline"), SQLDataType.VARCHAR(255).nullable(false), this, "");
 
@@ -143,15 +143,15 @@ public class Classes extends TableImpl<ClassesRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row6<Integer, Long, String, LocalDate, String, String> fieldsRow() {
+    public Row6<Integer, Integer, String, LocalDate, String, String> fieldsRow() {
         return (Row6) super.fieldsRow();
     }
 
-    public <U> SelectField<U> mapping(Function6<? super Integer, ? super Long, ? super String, ? super LocalDate, ? super String, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function6<? super Integer, ? super Integer, ? super String, ? super LocalDate, ? super String, ? super String, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
-    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super Integer, ? super Long, ? super String, ? super LocalDate, ? super String, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super Integer, ? super Integer, ? super String, ? super LocalDate, ? super String, ? super String, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

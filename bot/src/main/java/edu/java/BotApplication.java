@@ -12,7 +12,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class BotApplication {
     private static final Logger logger = LoggerFactory.getLogger(BotApplication.class);
     public static void main(String[] args) {
-        logger.info(System.getenv("APP_TELEGRAM_TOKEN"));
         SpringApplication.run(BotApplication.class, args);
     }
 

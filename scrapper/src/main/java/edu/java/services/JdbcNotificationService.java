@@ -1,14 +1,13 @@
-package io.swagger.services;
+package edu.java.services;
 
-import io.swagger.api.JdbcNotificationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import edu.java.repos.JdbcNotificationRepository;
 
 @Service
 public class JdbcNotificationService {
     private final JdbcNotificationRepository repo;
 
-    @Autowired
+
     public JdbcNotificationService(JdbcNotificationRepository repo) {
         this.repo = repo;
     }
@@ -21,7 +20,7 @@ public class JdbcNotificationService {
         repo.updateNotifications(tgChatId, notify);
     }
 
-    public boolean getNotification(long tgChatId){
+    public boolean getNotification(long tgChatId) {
         return repo.getNotification(tgChatId);
     }
 
@@ -29,8 +28,8 @@ public class JdbcNotificationService {
         repo.updateMailing(tgChatId, newhour);
     }
 
-    public boolean getMailing(long tgChatId){
-       return repo.getMailing(tgChatId);
+    public boolean getMailing(long tgChatId) {
+        return repo.getMailing(tgChatId);
     }
 
     public boolean check(long tgChatId) {

@@ -1,12 +1,9 @@
-package io.swagger.api;
+package edu.java.repos;
 
-import java.util.HashMap;
-import edu.java.jooq.Tables;
-import edu.java.jooq.tables.*;
+import edu.java.jooq.tables.Groups;
 import edu.java.jooq.tables.records.GroupsRecord;
+import java.util.HashMap;
 import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import static edu.java.jooq.Tables.GROUPS;
 import static edu.java.jooq.Tables.STUDENT;
@@ -16,7 +13,6 @@ public class JdbcNotificationRepository {
     private final DSLContext context;
     private final JdbcScheduleRepository scheduleRepository;
 
-    @Autowired
     public JdbcNotificationRepository(DSLContext context, JdbcScheduleRepository scheduleRepository) {
         this.context = context;
         this.scheduleRepository = scheduleRepository;
@@ -37,7 +33,7 @@ public class JdbcNotificationRepository {
 
         if (isAbsent) {
             context.insertInto(STUDENT).set(STUDENT.ID, id)
-                .set(STUDENT.GROUPID,groupid.value1()).execute();
+                .set(STUDENT.GROUPID, groupid.value1()).execute();
         } else {
             context.update(STUDENT).set(STUDENT.GROUPID, groupid.value1())
                 .where(STUDENT.ID.eq(id)).execute();
@@ -61,7 +57,7 @@ public class JdbcNotificationRepository {
 
     public Boolean getMailing(Long id) {
         return context.select(STUDENT.MAILINGTIME)
-            .from(STUDENT).where(STUDENT.ID.eq(id)).fetchOne().value1()!=null;
+            .from(STUDENT).where(STUDENT.ID.eq(id)).fetchOne().value1() != null;
     }
 
     public boolean check(Long id) {

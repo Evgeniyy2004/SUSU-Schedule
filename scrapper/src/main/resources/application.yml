@@ -8,10 +8,6 @@ spring:
     password: postgres
   jackson:
     time-zone: Asia/Yekaterinburg
-  liquibase:
-    enabled: false
-  main:
-    allow-bean-definition-overriding: true
 
 
 app:

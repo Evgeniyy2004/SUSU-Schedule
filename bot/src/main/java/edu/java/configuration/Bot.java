@@ -47,7 +47,7 @@ public class Bot extends TelegramBot {
         "Консультация к промежуточной аттестации"
     };
 
-    @Autowired
+
     private ScrapperScheduleClient schedule;
 
     public Bot() {
@@ -61,8 +61,6 @@ public class Bot extends TelegramBot {
                             "Введите свою группу для просмотра расписания занятий.\n" +
                             "Допустимые форматы: " +
                             "«КЭ-301», «KE-301»."));
-
-
                     }
                     continue;
                 }
@@ -324,14 +322,14 @@ public class Bot extends TelegramBot {
         classResponses.sort((r1, r2) -> {
             String date1 = r1.getDay();
             String date2 = r2.getDay();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             // Parse the string into a LocalDate object
             LocalDate one = LocalDate.parse(date1, formatter);
             LocalDate two = LocalDate.parse(date2, formatter);
             return one.compareTo(two);
         });
-        for (int z = 0; z < classResponses.size(); z++) {
-            var daily = classResponses.get(z);
+
+        for (ClassResponse daily : classResponses) {
             // Создаем конфигурацию Freemarker
             Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
             cfg.setClassForTemplateLoading(Bot.class, "/");
@@ -339,19 +337,15 @@ public class Bot extends TelegramBot {
 
             Map<String, Object> data = new HashMap<>();
 
-            List<String> splitted =
-                Arrays.asList(daily.getDay().split("-"));
-            Collections.reverse(splitted);
-
             List<String> subjectswithsplittednames = daily.getSubjects();
 
             for (int zz = 0; zz < daily.getSubjects().size(); zz++) {
                 String currsubject = daily.getSubjects().get(zz);
 
-                for(int t=0; t<WORDSTOSPLIT.length;t++){
-                    int indx = currsubject.indexOf(" "+WORDSTOSPLIT[t]);
-                    if(indx!=-1){
-                        currsubject=currsubject.substring(0,indx)+"\n"+WORDSTOSPLIT[t];
+                for (int t = 0; t < WORDSTOSPLIT.length; t++) {
+                    int indx = currsubject.indexOf(" " + WORDSTOSPLIT[t]);
+                    if (indx != -1) {
+                        currsubject = currsubject.substring(0, indx) + "\n" + WORDSTOSPLIT[t];
                         break;
                     }
                 }
@@ -359,8 +353,8 @@ public class Bot extends TelegramBot {
                 subjectswithsplittednames.set(zz, currsubject);
             }
 
-            data.put("day", String.join("-", splitted));
-            data.put("time", daily.getTime());
+            data.put("day", daily.getDay());
+            data.put("time", daily.getTimeList());
             data.put("classrooms", daily.getClassrooms());
             data.put("subjects", subjectswithsplittednames);
             data.put("someCondition", daily.getSubjects().isEmpty());
@@ -373,7 +367,7 @@ public class Bot extends TelegramBot {
 
         var str = res.toString();
         var toSend = new SendMessage(chatId, str).parseMode(ParseMode.HTML);
-        var resp = this.execute(toSend);
+        this.execute(toSend);
     }
 
     public String convertCyrilic(String message) {
