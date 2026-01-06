@@ -208,7 +208,7 @@
         </dependency>
         <dependency>
             <groupId>edu.java</groupId>
-            <artifactId>request-response</artifactId>
+            <artifactId>jooq-generated</artifactId>
             <version>0.1</version>
             <scope>compile</scope>
         </dependency>
@@ -261,7 +261,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.java.ScrapperApplication</mainClass>
+                            <mainClass>daemon.ScrapperApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

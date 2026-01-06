@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package notification;
+
+option java_package = "edu.java.grpc.notification";
+option java_multiple_files = true;
+
+import "common.proto";
+
+service NotificationService {
+    // Mailing endpoints
+    rpc UpdateMailing(UpdateMailingRequest) returns (google.protobuf.Empty);
+    rpc GetMailing(common.IdRequest) returns (common.BooleanResponse);
+
+    // Group endpoints
+    rpc UpdateGroup(UpdateGroupRequest) returns (google.protobuf.Empty);
+    rpc CheckGroup(common.IdRequest) returns (common.BooleanResponse);
+
+    // Notify endpoints
+    rpc UpdateNotify(UpdateNotifyRequest) returns (google.protobuf.Empty);
+    rpc GetNotify(common.IdRequest) returns (common.BooleanResponse);
+}
+
+message UpdateMailingRequest {
+    int64 id = 1;
+    int32 time = 2;  // @RequestParam("do")
+}
+
+message UpdateGroupRequest {
+    int64 id = 1;
+    string group = 2;  // @RequestParam("new_group")
+}
+
+message UpdateNotifyRequest {
+    int64 id = 1;
+    bool value = 2;  // @RequestParam("new")
+}
+
+import "google/protobuf/empty.proto";

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package common;
+
+option java_package = "edu.java.grpc.common";
+option java_multiple_files = true;
+
+message Class {
+    string subject = 1;
+    string time = 2;
+    string classroom = 3;
+}
+
+message ClassResponse {
+    string day = 1;
+    repeated Class classes = 2;
+}
+
+message ScheduleResponse {
+    repeated ClassResponse schedule = 1;
+}
+
+message IdRequest {
+    int64 id = 1;
+}
+
+message BooleanResponse {
+    bool value = 1;
+}

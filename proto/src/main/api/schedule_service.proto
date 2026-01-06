@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package schedule;
+
+option java_package = "edu.java.grpc.schedule";
+option java_multiple_files = true;
+
+import "common.proto";
+
+service ScheduleService {
+    rpc GetSchedule(GetScheduleRequest) returns (common.ScheduleResponse);
+}
+
+message GetScheduleRequest {
+    int64 id = 1;
+    string time = 2;
+}

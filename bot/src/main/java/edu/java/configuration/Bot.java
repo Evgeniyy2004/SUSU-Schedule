@@ -9,7 +9,6 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.model.ClassResponse;
 import edu.java.scrapperclient.ScrapperNotificationClient;
 import edu.java.scrapperclient.ScrapperScheduleClient;
 import freemarker.template.Configuration;
@@ -82,7 +81,7 @@ public class Bot extends TelegramBot {
                     variki.add("week");
                     String callback = update.callbackQuery().data();
                     if (variki.contains(callback)) {
-                        casesOfSchedule(update.callbackQuery().from().id(), callback);
+                        //casesOfSchedule(update.callbackQuery().from().id(), callback);
                     } else {
                         var id = update.callbackQuery().from().id();
                         switch (callback) {
@@ -299,7 +298,7 @@ public class Bot extends TelegramBot {
         this.execute(msg);
     }
 
-    public void casesOfSchedule(Long id, String callback) {
+    /*public void casesOfSchedule(Long id, String callback) {
         List<ClassResponse> send = switch (callback) {
             case "today" -> schedule.get(id, "0").getBody();
             case "tomorrow" -> schedule.get(id, "1").getBody();
@@ -310,9 +309,9 @@ public class Bot extends TelegramBot {
             sendSchedule(id, send, false);
         } catch (Exception ignored) {
         }
-    }
+    }*/
 
-    public void sendSchedule(Long chatId, List<ClassResponse> r, boolean update)
+    /*public void sendSchedule(Long chatId, List<ClassResponse> r, boolean update)
         throws IOException, TemplateException {
         StringBuilder res = new StringBuilder();
         List<ClassResponse> classResponses = new ArrayList(r);
@@ -368,7 +367,7 @@ public class Bot extends TelegramBot {
         var str = res.toString();
         var toSend = new SendMessage(chatId, str).parseMode(ParseMode.HTML);
         this.execute(toSend);
-    }
+    }*/
 
     public String convertCyrilic(String message) {
         char[] abcCyr =
