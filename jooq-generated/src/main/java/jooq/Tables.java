@@ -4,7 +4,7 @@
 package jooq;
 
 
-import jooq.tables.Classes;
+import jooq.tables.Lessons;
 import jooq.tables.Databasechangelog;
 import jooq.tables.Databasechangeloglock;
 import jooq.tables.Groups;
@@ -13,7 +13,7 @@ import jooq.tables.Student;
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
 
-    public static final Classes CLASSES = Classes.CLASSES;
+    public static final Lessons LESSONS = Lessons.LESSONS;
 
     public static final Databasechangelog DATABASECHANGELOG = Databasechangelog.DATABASECHANGELOG;
 

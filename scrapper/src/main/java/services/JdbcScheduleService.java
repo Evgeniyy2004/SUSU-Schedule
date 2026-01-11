@@ -14,7 +14,7 @@ public class JdbcScheduleService {
         this.repo = repo;
     }
 
-    /*public List<ClassResponse> getSchedule(long tgChatId, String timediff) {
+    /*public List<LessonResponse> getSchedule(long tgChatId, String timediff) {
         return repo.findAll(tgChatId, timediff);
     }
 */

@@ -1,9 +1,11 @@
-package schedule;
+package api.schedule;
 
+import common.ScheduleResponse;
+import schedule.GetScheduleRequest;
+import schedule.ScheduleServiceOuterClass;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
-/**
- */
+
 @javax.annotation.Generated(
     value = "by gRPC proto compiler (version 1.59.0)",
     comments = "Source: api/schedule_service.proto")
@@ -12,32 +14,32 @@ public final class ScheduleServiceGrpc {
 
   private ScheduleServiceGrpc() {}
 
-  public static final String SERVICE_NAME = "schedule.ScheduleService";
+  public static final String SERVICE_NAME = "ScheduleService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<edu.java.grpc.schedule.GetScheduleRequest,
-      edu.java.grpc.common.ScheduleResponse> getGetScheduleMethod;
+  private static volatile io.grpc.MethodDescriptor<GetScheduleRequest,
+      ScheduleResponse> getGetScheduleMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "GetSchedule",
-      requestType = edu.java.grpc.schedule.GetScheduleRequest.class,
-      responseType = edu.java.grpc.common.ScheduleResponse.class,
+      requestType = GetScheduleRequest.class,
+      responseType = ScheduleResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<edu.java.grpc.schedule.GetScheduleRequest,
-      edu.java.grpc.common.ScheduleResponse> getGetScheduleMethod() {
-    io.grpc.MethodDescriptor<edu.java.grpc.schedule.GetScheduleRequest, edu.java.grpc.common.ScheduleResponse> getGetScheduleMethod;
+  public static io.grpc.MethodDescriptor<GetScheduleRequest,
+      ScheduleResponse> getGetScheduleMethod() {
+    io.grpc.MethodDescriptor<GetScheduleRequest, ScheduleResponse> getGetScheduleMethod;
     if ((getGetScheduleMethod = ScheduleServiceGrpc.getGetScheduleMethod) == null) {
       synchronized (ScheduleServiceGrpc.class) {
         if ((getGetScheduleMethod = ScheduleServiceGrpc.getGetScheduleMethod) == null) {
           ScheduleServiceGrpc.getGetScheduleMethod = getGetScheduleMethod =
-              io.grpc.MethodDescriptor.<edu.java.grpc.schedule.GetScheduleRequest, edu.java.grpc.common.ScheduleResponse>newBuilder()
+              io.grpc.MethodDescriptor.<GetScheduleRequest, ScheduleResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetSchedule"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  edu.java.grpc.schedule.GetScheduleRequest.getDefaultInstance()))
+                  GetScheduleRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  edu.java.grpc.common.ScheduleResponse.getDefaultInstance()))
+                  ScheduleResponse.getDefaultInstance()))
               .setSchemaDescriptor(new ScheduleServiceMethodDescriptorSupplier("GetSchedule"))
               .build();
         }
@@ -46,9 +48,7 @@ public final class ScheduleServiceGrpc {
     return getGetScheduleMethod;
   }
 
-  /**
-   * Creates a new async stub that supports all call types for the service
-   */
+
   public static ScheduleServiceStub newStub(io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<ScheduleServiceStub> factory =
       new io.grpc.stub.AbstractStub.StubFactory<ScheduleServiceStub>() {
@@ -60,9 +60,7 @@ public final class ScheduleServiceGrpc {
     return ScheduleServiceStub.newStub(factory, channel);
   }
 
-  /**
-   * Creates a new blocking-style stub that supports unary and streaming output calls on the service
-   */
+
   public static ScheduleServiceBlockingStub newBlockingStub(
       io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<ScheduleServiceBlockingStub> factory =
@@ -75,9 +73,7 @@ public final class ScheduleServiceGrpc {
     return ScheduleServiceBlockingStub.newStub(factory, channel);
   }
 
-  /**
-   * Creates a new ListenableFuture-style stub that supports unary calls on the service
-   */
+
   public static ScheduleServiceFutureStub newFutureStub(
       io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<ScheduleServiceFutureStub> factory =
@@ -90,21 +86,18 @@ public final class ScheduleServiceGrpc {
     return ScheduleServiceFutureStub.newStub(factory, channel);
   }
 
-  /**
-   */
+
   public interface AsyncService {
 
-    /**
-     */
-    default void getSchedule(edu.java.grpc.schedule.GetScheduleRequest request,
-        io.grpc.stub.StreamObserver<edu.java.grpc.common.ScheduleResponse> responseObserver) {
+
+    default void getSchedule(
+        GetScheduleRequest request,
+        io.grpc.stub.StreamObserver<ScheduleResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetScheduleMethod(), responseObserver);
     }
   }
 
-  /**
-   * Base class for the server implementation of the service ScheduleService.
-   */
+
   public static abstract class ScheduleServiceImplBase
       implements io.grpc.BindableService, AsyncService {
 
@@ -113,9 +106,7 @@ public final class ScheduleServiceGrpc {
     }
   }
 
-  /**
-   * A stub to allow clients to do asynchronous rpc calls to service ScheduleService.
-   */
+
   public static final class ScheduleServiceStub
       extends io.grpc.stub.AbstractAsyncStub<ScheduleServiceStub> {
     private ScheduleServiceStub(
@@ -129,18 +120,16 @@ public final class ScheduleServiceGrpc {
       return new ScheduleServiceStub(channel, callOptions);
     }
 
-    /**
-     */
-    public void getSchedule(edu.java.grpc.schedule.GetScheduleRequest request,
-        io.grpc.stub.StreamObserver<edu.java.grpc.common.ScheduleResponse> responseObserver) {
+
+    public void getSchedule(
+        GetScheduleRequest request,
+        io.grpc.stub.StreamObserver<ScheduleResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getGetScheduleMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
-  /**
-   * A stub to allow clients to do synchronous rpc calls to service ScheduleService.
-   */
+
   public static final class ScheduleServiceBlockingStub
       extends io.grpc.stub.AbstractBlockingStub<ScheduleServiceBlockingStub> {
     private ScheduleServiceBlockingStub(
@@ -154,17 +143,14 @@ public final class ScheduleServiceGrpc {
       return new ScheduleServiceBlockingStub(channel, callOptions);
     }
 
-    /**
-     */
-    public edu.java.grpc.common.ScheduleResponse getSchedule(edu.java.grpc.schedule.GetScheduleRequest request) {
+
+    public ScheduleResponse getSchedule(GetScheduleRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getGetScheduleMethod(), getCallOptions(), request);
     }
   }
 
-  /**
-   * A stub to allow clients to do ListenableFuture-style rpc calls to service ScheduleService.
-   */
+
   public static final class ScheduleServiceFutureStub
       extends io.grpc.stub.AbstractFutureStub<ScheduleServiceFutureStub> {
     private ScheduleServiceFutureStub(
@@ -178,10 +164,9 @@ public final class ScheduleServiceGrpc {
       return new ScheduleServiceFutureStub(channel, callOptions);
     }
 
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<edu.java.grpc.common.ScheduleResponse> getSchedule(
-        edu.java.grpc.schedule.GetScheduleRequest request) {
+
+    public com.google.common.util.concurrent.ListenableFuture<ScheduleResponse> getSchedule(
+        GetScheduleRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getGetScheduleMethod(), getCallOptions()), request);
     }
@@ -207,8 +192,8 @@ public final class ScheduleServiceGrpc {
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
         case METHODID_GET_SCHEDULE:
-          serviceImpl.getSchedule((edu.java.grpc.schedule.GetScheduleRequest) request,
-              (io.grpc.stub.StreamObserver<edu.java.grpc.common.ScheduleResponse>) responseObserver);
+          serviceImpl.getSchedule((GetScheduleRequest) request,
+              (io.grpc.stub.StreamObserver<ScheduleResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -232,8 +217,8 @@ public final class ScheduleServiceGrpc {
           getGetScheduleMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              edu.java.grpc.schedule.GetScheduleRequest,
-              edu.java.grpc.common.ScheduleResponse>(
+                GetScheduleRequest,
+                ScheduleResponse>(
                 service, METHODID_GET_SCHEDULE)))
         .build();
   }
@@ -244,7 +229,7 @@ public final class ScheduleServiceGrpc {
 
     @Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return edu.java.grpc.schedule.ScheduleServiceOuterClass.getDescriptor();
+      return ScheduleServiceOuterClass.getDescriptor();
     }
 
     @Override

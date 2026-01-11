@@ -299,7 +299,7 @@ public class Bot extends TelegramBot {
     }
 
     /*public void casesOfSchedule(Long id, String callback) {
-        List<ClassResponse> send = switch (callback) {
+        List<LessonResponse> send = switch (callback) {
             case "today" -> schedule.get(id, "0").getBody();
             case "tomorrow" -> schedule.get(id, "1").getBody();
             default -> schedule.get(id, "7").getBody();
@@ -311,10 +311,10 @@ public class Bot extends TelegramBot {
         }
     }*/
 
-    /*public void sendSchedule(Long chatId, List<ClassResponse> r, boolean update)
+    /*public void sendSchedule(Long chatId, List<LessonResponse> r, boolean update)
         throws IOException, TemplateException {
         StringBuilder res = new StringBuilder();
-        List<ClassResponse> classResponses = new ArrayList(r);
+        List<LessonResponse> classResponses = new ArrayList(r);
         if (classResponses.isEmpty()) {
             res.append("<b>Занятий нет!</b>\n\n");
         }
@@ -328,7 +328,7 @@ public class Bot extends TelegramBot {
             return one.compareTo(two);
         });
 
-        for (ClassResponse daily : classResponses) {
+        for (LessonResponse daily : classResponses) {
             // Создаем конфигурацию Freemarker
             Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
             cfg.setClassForTemplateLoading(Bot.class, "/");

@@ -4,7 +4,7 @@
 package jooq;
 
 
-import jooq.tables.Classes;
+import jooq.tables.Lessons;
 import jooq.tables.Databasechangelog;
 import jooq.tables.Databasechangeloglock;
 import jooq.tables.Groups;
@@ -25,7 +25,7 @@ public class Public extends SchemaImpl {
 
     public static final Public PUBLIC = new Public();
 
-    public final Classes CLASSES = Classes.CLASSES;
+    public final Lessons LESSONS = Lessons.LESSONS;
 
     public final Databasechangelog DATABASECHANGELOG = Databasechangelog.DATABASECHANGELOG;
 
@@ -48,7 +48,7 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
-            Classes.CLASSES,
+            Lessons.LESSONS,
             Databasechangelog.DATABASECHANGELOG,
             Databasechangeloglock.DATABASECHANGELOGLOCK,
             Groups.GROUPS,

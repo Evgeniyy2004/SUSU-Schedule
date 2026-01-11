@@ -5,19 +5,19 @@ package common;
 option java_package = "edu.java.grpc.common";
 option java_multiple_files = true;
 
-message Class {
+message Lesson {
     string subject = 1;
     string time = 2;
     string classroom = 3;
 }
 
-message ClassResponse {
+message LessonResponse {
     string day = 1;
-    repeated Class classes = 2;
+    repeated Lesson lessons = 2;
 }
 
 message ScheduleResponse {
-    repeated ClassResponse schedule = 1;
+    repeated LessonResponse schedule = 1;
 }
 
 message IdRequest {

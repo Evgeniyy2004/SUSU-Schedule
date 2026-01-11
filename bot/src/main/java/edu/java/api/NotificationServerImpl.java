@@ -29,7 +29,7 @@ public class NotificationServerImpl {
 //    @Valid
 //    public void mailingIdPost(
 //        @PathVariable("id") Long id, @RequestBody
-//    ClassResponse classes
+//    LessonResponse classes
 //    ) {
 //        try {
 //            bot.sendSchedule(id, List.of(classes), false);
@@ -42,7 +42,7 @@ public class NotificationServerImpl {
 //    @Valid
 //    public void notifyIdPost(
 //        @PathVariable("id") Long id, @RequestBody
-//    List<ClassResponse> classes
+//    List<LessonResponse> classes
 //    ) {
 //        try {
 //            bot.sendSchedule(id, classes, true);

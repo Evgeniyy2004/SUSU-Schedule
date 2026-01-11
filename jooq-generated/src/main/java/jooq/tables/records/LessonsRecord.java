@@ -4,7 +4,7 @@
 package jooq.tables.records;
 
 
-import jooq.tables.Classes;
+import jooq.tables.Lessons;
 
 import java.time.LocalDate;
 
@@ -16,7 +16,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
-public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements Record6<Integer, Integer, String, LocalDate, String, String> {
+public class LessonsRecord extends UpdatableRecordImpl<LessonsRecord> implements Record6<Integer, Integer, String, LocalDate, String, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -93,32 +93,32 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
 
     @Override
     public Field<Integer> field1() {
-        return Classes.CLASSES.ID;
+        return Lessons.CLASSES.ID;
     }
 
     @Override
     public Field<Integer> field2() {
-        return Classes.CLASSES.GROUPID;
+        return Lessons.CLASSES.GROUPID;
     }
 
     @Override
     public Field<String> field3() {
-        return Classes.CLASSES.DISCIPLINE;
+        return Lessons.CLASSES.DISCIPLINE;
     }
 
     @Override
     public Field<LocalDate> field4() {
-        return Classes.CLASSES.CLASSDATE;
+        return Lessons.CLASSES.CLASSDATE;
     }
 
     @Override
     public Field<String> field5() {
-        return Classes.CLASSES.CLASSTIME;
+        return Lessons.CLASSES.CLASSTIME;
     }
 
     @Override
     public Field<String> field6() {
-        return Classes.CLASSES.CLASSROOM;
+        return Lessons.CLASSES.CLASSROOM;
     }
 
     @Override
@@ -182,43 +182,43 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     }
 
     @Override
-    public ClassesRecord value1(Integer value) {
+    public LessonsRecord value1(Integer value) {
         setId(value);
         return this;
     }
 
     @Override
-    public ClassesRecord value2(Integer value) {
+    public LessonsRecord value2(Integer value) {
         setGroupid(value);
         return this;
     }
 
     @Override
-    public ClassesRecord value3(String value) {
+    public LessonsRecord value3(String value) {
         setDiscipline(value);
         return this;
     }
 
     @Override
-    public ClassesRecord value4(LocalDate value) {
+    public LessonsRecord value4(LocalDate value) {
         setClassdate(value);
         return this;
     }
 
     @Override
-    public ClassesRecord value5(String value) {
+    public LessonsRecord value5(String value) {
         setClasstime(value);
         return this;
     }
 
     @Override
-    public ClassesRecord value6(String value) {
+    public LessonsRecord value6(String value) {
         setClassroom(value);
         return this;
     }
 
     @Override
-    public ClassesRecord values(Integer value1, Integer value2, String value3, LocalDate value4, String value5, String value6) {
+    public LessonsRecord values(Integer value1, Integer value2, String value3, LocalDate value4, String value5, String value6) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -232,12 +232,12 @@ public class ClassesRecord extends UpdatableRecordImpl<ClassesRecord> implements
     // Constructors
     // -------------------------------------------------------------------------
 
-    public ClassesRecord() {
-        super(Classes.CLASSES);
+    public LessonsRecord() {
+        super(Lessons.CLASSES);
     }
 
-    public ClassesRecord(Integer id, Integer groupid, String discipline, LocalDate classdate, String classtime, String classroom) {
-        super(Classes.CLASSES);
+    public LessonsRecord(Integer id, Integer groupid, String discipline, LocalDate classdate, String classtime, String classroom) {
+        super(Lessons.CLASSES);
 
         setId(id);
         setGroupid(groupid);

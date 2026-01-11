@@ -29,58 +29,64 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 
+import jooq.tables.records.LessonsRecord;
+import static jooq.tables.Lessons.LESSONS;
+import static jooq.tables.Student.STUDENT;
+import static jooq.tables.Groups.GROUPS;
+import LessonResponse;
+
 @Repository
 @SuppressWarnings("all")
 public class JdbcScheduleRepository {
 
     private final DSLContext context;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-   /* private final List<TableField> classFields = Arrays.asList(
-        CLASSES.CLASSDATE, CLASSES.DISCIPLINE,
-        CLASSES.CLASSTIME, CLASSES.CLASSROOM
-    );*/
+    private final List<TableField> classFields = Arrays.asList(
+        LESSONS.CLASSDATE, LESSONS.DISCIPLINE,
+        LESSONS.CLASSTIME, LESSONS.CLASSROOM
+    );
 
     public JdbcScheduleRepository(DSLContext context) {
         this.context = context;
     }
 
-    /*public void removeOld() {
-        context.deleteFrom(CLASSES)
-            .where(CLASSES.CLASSDATE.lessThan(LocalDate.now())).execute();
+    public void removeOld() {
+        context.deleteFrom(LESSONS)
+            .where(LESSONS.CLASSDATE.lessThan(LocalDate.now())).execute();
     }
 
-    public List<ClassResponse> findAll(Long id, String timediff) {
-        Result<ClassesRecord> res;
+    public List<LessonResponse> findAll(Long id, String timediff) {
+        Result<LessonsRecord> res;
         LocalDate date = LocalDate.now();
         date.plusDays(Integer.valueOf(timediff));
-        res = context.select(classFields)
-            .from(CLASSES).join(STUDENT).
-            on(STUDENT.GROUPID.eq(CLASSES.GROUPID))
-            .where(CLASSES.CLASSDATE.eq(date)).fetchInto(CLASSES);
+        res = (Result<LessonsRecord>) context.select(classFields)
+            .from(LESSONS).join(STUDENT).
+            on(STUDENT.GROUPID.eq(LESSONS.GROUPID))
+            .where(LESSONS.CLASSDATE.eq(date)).fetchInto(LESSONS);
 
-        Map<String, ClassResponse> map2 = new HashMap<String, ClassResponse>();
-        for (ClassesRecord row : res) {
+        Map<String, LessonResponse> map2 = new HashMap<String, LessonResponse>();
+        for (LessonsRecord row : res) {
             String currDateStr = row.getClassdate().format(formatter);
             if (!map2.containsKey(currDateStr)) {
-                map2.put(currDateStr, new ClassResponse());
+                map2.put(currDateStr, new LessonResponse());
                 map2.get(currDateStr).setDay(currDateStr);
             }
-            map2.get(currDateStr).addClass(row.getClasstime(), row.getClassroom(), row.getDiscipline());
+            map2.get(currDateStr).addLesson(row.getClasstime(), row.getClassroom(), row.getDiscipline());
         }
 
-        ClassResponse valueforEmpty = new ClassResponse();
+        LessonResponse valueforEmpty = new LessonResponse();
 
         return map2.values().stream().toList();
     }
 
-    public Pair<Map<Pair<String, String>, ClassResponse>,
-        Map<Pair<String, String>, ClassResponse>> update() {
+    public Pair<Map<Pair<String, String>, LessonResponse>,
+        Map<Pair<String, String>, LessonResponse>> update() {
         removeOld();
-        Map<String, List<ClassResponse>> result = new HashMap<>();
-        Map<Pair<String, String>, ClassResponse> map = new HashMap<>();
+        Map<String, List<LessonResponse>> result = new HashMap<>();
+        Map<Pair<String, String>, LessonResponse> map = new HashMap<>();
 
-        var data = context.selectFrom(CLASSES.join(GROUPS).
-            on(CLASSES.GROUPID.eq(GROUPS.ID))).orderBy(CLASSES.CLASSTIME).fetch();
+        var data = context.selectFrom(LESSONS.join(GROUPS).
+            on(LESSONS.GROUPID.eq(GROUPS.ID))).orderBy(LESSONS.CLASSTIME).fetch();
 
         var res = data.stream().map(c -> {
             List<String> row = new ArrayList<>();
@@ -99,21 +105,21 @@ public class JdbcScheduleRepository {
             return row;
         }).toList();
 
-        Map<Pair<String, String>, ClassResponse> updated = new HashMap<>();
-        Map<Pair<String, String>, ClassResponse> added = new HashMap<>();
+        Map<Pair<String, String>, LessonResponse> updated = new HashMap<>();
+        Map<Pair<String, String>, LessonResponse> added = new HashMap<>();
         for (List<String> row : res) {
             if (!map.containsKey(Pair.of(row.get(0), row.get(1)))) {
-                var currResponse = new ClassResponse();
+                var currResponse = new LessonResponse();
                 currResponse.setDay(row.get(1));
                 map.put(Pair.of(row.get(0), row.get(1)), currResponse);
             }
-            map.get(Pair.of(row.get(0), row.get(1))).addClass(row.get(3), row.get(4), row.get(2));
+            map.get(Pair.of(row.get(0), row.get(1))).addLesson(row.get(3), row.get(4), row.get(2));
         }
 
         for (String s : context.select(GROUPS.GROUPNAME).from(GROUPS).fetchInto(String.class)) {
             try {
                 var neww = getFromSite(s);
-                for (Map.Entry<Pair<String, String>, ClassResponse> entry : neww.entrySet()) {
+                for (Map.Entry<Pair<String, String>, LessonResponse> entry : neww.entrySet()) {
                     var key = entry.getKey();
                     var value = entry.getValue();
                     if (!new SimpleDateFormat("dd.MM.yyyy").parse(key.getValue()).before(new Date())) {
@@ -132,10 +138,10 @@ public class JdbcScheduleRepository {
         return Pair.of(updated, added);
     }
 
-    public Map<Long, List<ClassResponse>> getForNotifications(Map<Pair<String, String>, ClassResponse> data) {
-        Map<Long, List<ClassResponse>> result = new HashMap<>();
+    public Map<Long, List<LessonResponse>> getForNotifications(Map<Pair<String, String>, LessonResponse> data) {
+        Map<Long, List<LessonResponse>> result = new HashMap<>();
         Set<String> changedGroups = new HashSet<>();
-        for (Map.Entry<Pair<String, String>, ClassResponse> entry : data.entrySet()) {
+        for (Map.Entry<Pair<String, String>, LessonResponse> entry : data.entrySet()) {
             changedGroups.add("\'" + entry.getKey().getLeft() + "\'");
         }
 
@@ -158,7 +164,7 @@ public class JdbcScheduleRepository {
                 .filter(r -> r.getKey().getLeft() == pair.getRight()).collect(Collectors.toSet());
             if (filtered.size() > 0) {
                 result.put(pair.getLeft(), new ArrayList<>());
-                for (Map.Entry<Pair<String, String>, ClassResponse> f : filtered) {
+                for (Map.Entry<Pair<String, String>, LessonResponse> f : filtered) {
                     var currresponse = f.getValue();
                     result.get(pair.getLeft()).add(currresponse);
                 }
@@ -167,7 +173,7 @@ public class JdbcScheduleRepository {
         return result;
     }
 
-    public Map<Pair<String, String>, ClassResponse> getFromSite(String groupName) throws IOException {
+    public Map<Pair<String, String>, LessonResponse> getFromSite(String groupName) throws IOException {
         Document doc = Jsoup.connect("https://www.susu.ru/ru/lessons/" + groupName).get();
         var table = doc.select("table");
         var tbody = table.select("tbody").getFirst();
@@ -181,7 +187,7 @@ public class JdbcScheduleRepository {
             headers.add(header.text());
         }
 
-        Map<Pair<String, String>, ClassResponse> result = new HashMap<>();
+        Map<Pair<String, String>, LessonResponse> result = new HashMap<>();
 
         List<Map<String, String>> parsedDataRows = new ArrayList();
         for (int row = 0; row < dataRows.size(); row++) {
@@ -200,10 +206,10 @@ public class JdbcScheduleRepository {
             if (row.size() == 1) {
                 var dateOfClass = row.get("Время").strip().split(" ")[1];
                 currkey = new ImmutablePair<>(groupName, dateOfClass);
-                result.put(currkey, new ClassResponse());
+                result.put(currkey, new LessonResponse());
                 result.get(currkey).setDay(dateOfClass);
             } else {
-                result.get(currkey).addClass(row.get("Время"), row.get("Место"), row.get("Дисциплина"));
+                result.get(currkey).addLesson(row.get("Время"), row.get("Место"), row.get("Дисциплина"));
             }
         }
         return result;
@@ -223,15 +229,15 @@ public class JdbcScheduleRepository {
     }
 
     public void updateAllClasses(
-        Map<Pair<String, String>, ClassResponse> updated,
-        Map<Pair<String, String>, ClassResponse> added
+        Map<Pair<String, String>, LessonResponse> updated,
+        Map<Pair<String, String>, LessonResponse> added
     ) {
 
         var res = context.selectFrom(GROUPS).stream()
             .map(group -> Pair.of(group.component2(), group.component1()))
             .collect(Collectors.toMap(p -> p.getLeft(), p -> p.getRight()));
 
-        for (Map.Entry<Pair<String, String>, ClassResponse> entry : updated.entrySet()) {
+        for (Map.Entry<Pair<String, String>, LessonResponse> entry : updated.entrySet()) {
             var groupname = entry.getKey().getLeft();
             var groupId = res.get(groupname);
             context.deleteFrom(CLASSES).where(CLASSES.GROUPID.eq(groupId))
@@ -247,12 +253,12 @@ public class JdbcScheduleRepository {
     }
 
     public void saveToClasses(
-        Map<Pair<String, String>, ClassResponse> toWrite,
+        Map<Pair<String, String>, LessonResponse> toWrite,
         Map<String, Integer> groupnameToId
     ) {
-        List<ClassesRecord> list = new ArrayList<>();
-        for (Map.Entry<Pair<String, String>, ClassResponse> entry : toWrite.entrySet()) {
-            ClassResponse classResponse = entry.getValue();
+        List<LessonsRecord> list = new ArrayList<>();
+        for (Map.Entry<Pair<String, String>, LessonResponse> entry : toWrite.entrySet()) {
+            LessonResponse classResponse = entry.getValue();
             var groupname = entry.getKey().getLeft();
             var groupId = groupnameToId.get(groupname);
             for (int g = 0; g < classResponse.getClassrooms().size(); g++) {
@@ -263,18 +269,16 @@ public class JdbcScheduleRepository {
                 );
                 var time = classResponse.getTimeList().get(g);
                 var classroom = classResponse.getClassrooms().get(g);
-                ClassesRecord classes = new ClassesRecord();
-                classes.set(CLASSES.GROUPID, groupId);
-                classes.set(CLASSES.DISCIPLINE, subject);
-                classes.set(CLASSES.CLASSDATE, date);
-                classes.set(CLASSES.CLASSTIME, time);
-                classes.set(CLASSES.CLASSROOM, classroom);
-                list.add(classes);
+                LessonsRecord lessons = new LessonsRecord();
+                lessons.set(LESSONS.GROUPID, groupId);
+                lessons.set(LESSONS.DISCIPLINE, subject);
+                lessons.set(LESSONS.CLASSDATE, date);
+                lessons.set(LESSONS.CLASSTIME, time);
+                lessons.set(LESSONS.CLASSROOM, classroom);
+                list.add(lessons);
             }
         }
-        context.insertInto(CLASSES).values(list);
+        context.insertInto(LESSONS).values(list);
     }
 
-}
-*/
 }

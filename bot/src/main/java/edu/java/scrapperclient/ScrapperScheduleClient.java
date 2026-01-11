@@ -10,5 +10,5 @@ import java.util.List;
 public interface ScrapperScheduleClient {
 
    /* @GetExchange
-    ResponseEntity<List<ClassResponse>> get(@PathVariable Long id, @PathVariable String time);*/
+    ResponseEntity<List<LessonResponse>> get(@PathVariable Long id, @PathVariable String time);*/
 }

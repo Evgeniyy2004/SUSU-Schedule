@@ -1,9 +1,11 @@
+package jooq;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ClassResponse {
+public class LessonResponse {
     @JsonProperty("day")
     private String day = null;
 
@@ -16,7 +18,7 @@ public class ClassResponse {
     @JsonProperty("classrooms")
     private List<String>  classrooms  =new ArrayList<>();
 
-    public ClassResponse day(String day) {
+    public LessonResponse day(String day) {
         this.day = day;
         return this;
     }
@@ -55,7 +57,7 @@ public class ClassResponse {
         this.classrooms = tutors;
     }
 
-    public void addClass(String time, String classroom, String subject){
+    public void addLesson(String time, String classroom, String subject){
         classrooms.add(classroom);
         timeList.add(time);
         subjects.add(subject);
@@ -71,7 +73,7 @@ public class ClassResponse {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ClassResponse Response = (ClassResponse) o;
+        LessonResponse Response = (LessonResponse) o;
         return Objects.equals(this.day, Response.day)
             && Objects.equals(this.timeList, Response.timeList)
             && Response.timeList.equals(this.timeList)

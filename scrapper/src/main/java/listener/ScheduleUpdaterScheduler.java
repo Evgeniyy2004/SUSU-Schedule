@@ -1,12 +1,5 @@
 package listener;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,7 +24,7 @@ public class ScheduleUpdaterScheduler {
         /*var allChanges = repo.update();
         var tonotifyUsers = repo.getForNotifications(allChanges.getLeft());
         ExecutorService executor = Executors.newFixedThreadPool(10);
-        for (Map.Entry<Long, List<ClassResponse>> p : tonotifyUsers.entrySet()) {
+        for (Map.Entry<Long, List<LessonResponse>> p : tonotifyUsers.entrySet()) {
             executor.submit(() -> performNotificationTask(p.getKey(), p.getValue()));
         }
         repo.updateAllClasses(allChanges.getLeft(), allChanges.getRight());*/
@@ -57,7 +50,7 @@ public class ScheduleUpdaterScheduler {
         }
     }*/
 
-    /*private void performNotificationTask(Long chatId, List<ClassResponse> updates) {
+    /*private void performNotificationTask(Long chatId, List<LessonResponse> updates) {
         client.sendNotification(chatId, updates);
     }*/
 }

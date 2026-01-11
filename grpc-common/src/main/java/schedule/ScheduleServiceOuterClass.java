@@ -32,14 +32,14 @@ public final class ScheduleServiceOuterClass {
       "\n\032api/schedule_service.proto\022\010schedule\032\014" +
       "common.proto\".\n\022GetScheduleRequest\022\n\n\002id" +
       "\030\001 \001(\003\022\014\n\004time\030\002 \001(\t2X\n\017ScheduleService\022" +
-      "E\n\013GetSchedule\022\034.schedule.GetScheduleReq" +
+      "E\n\013GetSchedule\022\034.GetScheduleReq" +
       "uest\032\030.common.ScheduleResponseB\032\n\026edu.ja" +
       "va.grpc.scheduleP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          edu.java.grpc.common.Common.getDescriptor(),
+          common.Common.getDescriptor(),
         });
     internal_static_schedule_GetScheduleRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -47,7 +47,7 @@ public final class ScheduleServiceOuterClass {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_schedule_GetScheduleRequest_descriptor,
         new String[] { "Id", "Time", });
-    edu.java.grpc.common.Common.getDescriptor();
+    common.Common.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

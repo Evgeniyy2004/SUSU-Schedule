@@ -7,8 +7,8 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 public interface BotClient {
 
     /*@PostExchange(url = "/{id}/notification")
-    void sendNotification(@PathVariable("id") Long chatId, @RequestBody List<ClassResponse> info);
+    void sendNotification(@PathVariable("id") Long chatId, @RequestBody List<LessonResponse> info);
 
     @PostExchange(url = "/{id}/mailing")
-    void sendMailing(@PathVariable("id") Long chatId, @RequestBody ClassResponse info);*/
+    void sendMailing(@PathVariable("id") Long chatId, @RequestBody LessonResponse info);*/
 }

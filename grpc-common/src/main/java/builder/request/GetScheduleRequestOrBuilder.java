@@ -2,27 +2,18 @@
 // source: api/schedule_service.proto
 
 // Protobuf Java Version: 3.25.1
-package schedule;
+package builder.request;
 
 public interface GetScheduleRequestOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:schedule.GetScheduleRequest)
+    // @@protoc_insertion_point(interface_extends:GetScheduleRequest)
     com.google.protobuf.MessageOrBuilder {
 
-  /**
-   * <code>int64 id = 1;</code>
-   * @return The id.
-   */
+
   long getId();
 
-  /**
-   * <code>string time = 2;</code>
-   * @return The time.
-   */
+
   String getTime();
-  /**
-   * <code>string time = 2;</code>
-   * @return The bytes for time.
-   */
+
   com.google.protobuf.ByteString
       getTimeBytes();
 }
