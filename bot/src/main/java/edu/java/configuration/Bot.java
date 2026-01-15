@@ -9,8 +9,10 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.scrapperclient.ScrapperNotificationClient;
-import edu.java.scrapperclient.ScrapperScheduleClient;
+import common.IdRequest;
+import common.Lesson;
+import common.LessonResponse;
+import common.ScheduleResponse;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -19,23 +21,31 @@ import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import NotificationServiceGrpc;
+import notification.UpdateGroupRequest;
+import notification.UpdateMailingRequest;
+import notification.UpdateNotifyRequest;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import schedule.GetScheduleRequest;
+import schedule.ScheduleServiceGrpc;
 
 @Component
 @SuppressWarnings({"ReturnCount", "CyclomaticComplexity", "RegexpSinglelineJava"})
 public class Bot extends TelegramBot {
 
     @Autowired
-    private ScrapperNotificationClient chat;
+    private NotificationServiceGrpc.NotificationServiceBlockingStub notificationStub;
+
+    @Autowired
+    private ScheduleServiceGrpc.ScheduleServiceBlockingStub scheduleStub;
 
     private static final String[] WORDSTOSPLIT = new String[] {
         "Дифференцированный зачет",
@@ -46,16 +56,13 @@ public class Bot extends TelegramBot {
         "Консультация к промежуточной аттестации"
     };
 
-
-    private ScrapperScheduleClient schedule;
-
     public Bot() {
         super(System.getenv("APP_TELEGRAM_TOKEN"));
         this.setUpdatesListener(updates -> {
             for (Update update : updates) {
                 if (update.message() != null && update.message().text().equals("/start")) {
                     var id = update.message().chat().id();
-                    if (!chat.groupGet(id).getBody()) {
+                    if (!notificationStub.checkGroup(IdRequest.newBuilder().setId(id).build()).getValue()) {
                         this.execute(new SendMessage(id, "Добро пожаловать! " +
                             "Введите свою группу для просмотра расписания занятий.\n" +
                             "Допустимые форматы: " +
@@ -75,13 +82,13 @@ public class Bot extends TelegramBot {
                         }
                     }
                 } else {
-                    Set<String> variki = new HashSet<>();
-                    variki.add("today");
-                    variki.add("tomorrow");
-                    variki.add("week");
+                    Set<String> scheduleVariants = new HashSet<>();
+                    scheduleVariants.add("today");
+                    scheduleVariants.add("tomorrow");
+                    scheduleVariants.add("week");
                     String callback = update.callbackQuery().data();
-                    if (variki.contains(callback)) {
-                        //casesOfSchedule(update.callbackQuery().from().id(), callback);
+                    if (scheduleVariants.contains(callback)) {
+                        casesOfSchedule(update.callbackQuery().from().id(), callback);
                     } else {
                         var id = update.callbackQuery().from().id();
                         switch (callback) {
@@ -92,9 +99,9 @@ public class Bot extends TelegramBot {
                                     "«КЭ-301», «KE-301»."));
                                 break;
                             case "mailing":
-                                var already = chat.getMailing(id);
+                                var already = notificationStub.getMailing(IdRequest.newBuilder().setId(id).build());
                                 InlineKeyboardMarkup keyboard;
-                                if (!Boolean.TRUE.equals(already.getBody())) {
+                                if (!Boolean.TRUE.equals(already.getValue())) {
                                     keyboard = new InlineKeyboardMarkup(
                                         new InlineKeyboardButton[][] {
                                             {
@@ -172,7 +179,7 @@ public class Bot extends TelegramBot {
                                 break;
 
                             case "notifications":
-                                var noww = chat.notifyGet(id).getBody();
+                                var noww = notificationStub.getNotify(IdRequest.newBuilder().setId(id).build()).getValue();
                                 InlineKeyboardMarkup inlineKeyboardMarkup;
                                 if (noww) {
                                     inlineKeyboardMarkup = new InlineKeyboardMarkup(
@@ -187,30 +194,32 @@ public class Bot extends TelegramBot {
                                 }
                                 break;
                             case "returnnotify":
-                                chat.notifyPost(id, true);
+                                notificationStub.updateNotify(UpdateNotifyRequest.newBuilder().setId(id).setValue(true).build());
                                 this.execute(new SendMessage(id, "Готово! Уведомления включены."));
                                 break;
-                            case "cancelNotify":
-                                chat.notifyPost(id, false);
+                            case "cancelnotify":
+                                notificationStub.updateNotify(UpdateNotifyRequest.newBuilder().setId(id).setValue(false).build());
                                 this.execute(new SendMessage(id, "Готово! Уведомления отключены."));
                                 break;
                             case "cancelmailing":
-                                chat.postMailing(id, null);
+                                notificationStub.updateMailing(UpdateMailingRequest.newBuilder().setId(id).setTime(-1).build());
                                 this.execute(new SendMessage(id, "Готово! Вы отписались от рассылки расписания."));
                                 break;
                             default:
-                                var value = Integer.valueOf(callback);
-                                chat.postMailing(id, value);
-                                if(value>=5) {
-                                    this.execute(new SendMessage(id, String.format("Готово! Вы будете получать " +
-                                        "расписание на завтра в %s часов.", callback)));
-                                } else if(value==1){
-                                    this.execute(new SendMessage(id, String.format("Готово! Вы будете получать " +
-                                        "расписание на завтра в %s час.", callback)));
-                                } else {
-                                    this.execute(new SendMessage(id, String.format("Готово! Вы будете получать " +
-                                        "расписание на завтра в %s часа.", callback)));
-                                }
+                                try {
+                                    var value = Integer.valueOf(callback);
+                                    notificationStub.updateMailing(UpdateMailingRequest.newBuilder().setId(id).setTime(value).build());
+                                    if (value >= 5) {
+                                        this.execute(new SendMessage(id, String.format("Готово! Вы будете получать " +
+                                            "расписание на завтра в %s часов.", callback)));
+                                    } else if (value == 1) {
+                                        this.execute(new SendMessage(id, String.format("Готово! Вы будете получать " +
+                                            "расписание на завтра в %s час.", callback)));
+                                    } else {
+                                        this.execute(new SendMessage(id, String.format("Готово! Вы будете получать " +
+                                            "расписание на завтра в %s часа.", callback)));
+                                    }
+                                } catch (NumberFormatException ignored) {}
                         }
 
                     }
@@ -238,13 +247,13 @@ public class Bot extends TelegramBot {
             .get();
         var table = doc.select("table");
         String val;
-        var already = chat.groupGet(update.message().chat().id()).getBody();
+        var already = notificationStub.checkGroup(IdRequest.newBuilder().setId(update.message().chat().id()).build()).getValue();
         if (table.isEmpty()) {
             val = "Вы ввели группу, на которую у нас ещё нет расписания, или ввели неправильно.\n"+
                 "Допустимые форматы: " +
                 "«КЭ-301», «KE-301».";
         } else {
-            chat.groupPost(update.message().chat().id(), groupnameToClassic.toLowerCase());
+            notificationStub.updateGroup(UpdateGroupRequest.newBuilder().setId(update.message().chat().id()).setGroup(groupnameToClassic.toLowerCase()).build());
             val = String.format("Готово! Ваша группа – %s.", toElFormat);
             if (!already) {
                 val = String.format("Готово! Ваша группа – %s. Нажмите \"Настройки\", " +
@@ -298,23 +307,25 @@ public class Bot extends TelegramBot {
         this.execute(msg);
     }
 
-    /*public void casesOfSchedule(Long id, String callback) {
-        List<LessonResponse> send = switch (callback) {
-            case "today" -> schedule.get(id, "0").getBody();
-            case "tomorrow" -> schedule.get(id, "1").getBody();
-            default -> schedule.get(id, "7").getBody();
+    public void casesOfSchedule(Long id, String callback) {
+        String time = switch (callback) {
+            case "today" -> "0";
+            case "tomorrow" -> "1";
+            default -> "7";
         };
+        ScheduleResponse response = scheduleStub.getSchedule(GetScheduleRequest.newBuilder().setId(id).setTime(time).build());
+        List<LessonResponse> send = response.getScheduleList();
 
         try {
             sendSchedule(id, send, false);
         } catch (Exception ignored) {
         }
-    }*/
+    }
 
-    /*public void sendSchedule(Long chatId, List<LessonResponse> r, boolean update)
+    public void sendSchedule(Long chatId, List<LessonResponse> r, boolean update)
         throws IOException, TemplateException {
         StringBuilder res = new StringBuilder();
-        List<LessonResponse> classResponses = new ArrayList(r);
+        List<LessonResponse> classResponses = new ArrayList<>(r);
         if (classResponses.isEmpty()) {
             res.append("<b>Занятий нет!</b>\n\n");
         }
@@ -322,7 +333,6 @@ public class Bot extends TelegramBot {
             String date1 = r1.getDay();
             String date2 = r2.getDay();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            // Parse the string into a LocalDate object
             LocalDate one = LocalDate.parse(date1, formatter);
             LocalDate two = LocalDate.parse(date2, formatter);
             return one.compareTo(two);
@@ -336,10 +346,13 @@ public class Bot extends TelegramBot {
 
             Map<String, Object> data = new HashMap<>();
 
-            List<String> subjectswithsplittednames = daily.getSubjects();
+            List<Lesson> classes = daily.getClassesList();
+            List<String> subjects = classes.stream().map(Lesson::getSubject).collect(Collectors.toList());
+            List<String> timeList = classes.stream().map(Lesson::getTime).collect(Collectors.toList());
+            List<String> classrooms = classes.stream().map(Lesson::getClassroom).collect(Collectors.toList());
 
-            for (int zz = 0; zz < daily.getSubjects().size(); zz++) {
-                String currsubject = daily.getSubjects().get(zz);
+            for (int zz = 0; zz < subjects.size(); zz++) {
+                String currsubject = subjects.get(zz);
 
                 for (int t = 0; t < WORDSTOSPLIT.length; t++) {
                     int indx = currsubject.indexOf(" " + WORDSTOSPLIT[t]);
@@ -349,14 +362,14 @@ public class Bot extends TelegramBot {
                     }
                 }
 
-                subjectswithsplittednames.set(zz, currsubject);
+                subjects.set(zz, currsubject);
             }
 
             data.put("day", daily.getDay());
-            data.put("time", daily.getTimeList());
-            data.put("classrooms", daily.getClassrooms());
-            data.put("subjects", subjectswithsplittednames);
-            data.put("someCondition", daily.getSubjects().isEmpty());
+            data.put("time", timeList);
+            data.put("classrooms", classrooms);
+            data.put("subjects", subjects);
+            data.put("someCondition", subjects.isEmpty());
             data.put("update", update);
             // Создаем контекст данных
             StringWriter writer = new StringWriter();
@@ -367,7 +380,12 @@ public class Bot extends TelegramBot {
         var str = res.toString();
         var toSend = new SendMessage(chatId, str).parseMode(ParseMode.HTML);
         this.execute(toSend);
-    }*/
+    }
+
+        var str = res.toString();
+        var toSend = new SendMessage(chatId, str).parseMode(ParseMode.HTML);
+        this.execute(toSend);
+    }
 
     public String convertCyrilic(String message) {
         char[] abcCyr =

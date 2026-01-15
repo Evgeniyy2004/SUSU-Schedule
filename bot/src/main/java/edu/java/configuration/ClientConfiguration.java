@@ -1,19 +1,11 @@
 package edu.java.configuration;
 
-import edu.java.scrapperclient.ScrapperNotificationClient;
-import edu.java.scrapperclient.ScrapperScheduleClient;
-import java.time.Duration;
-import java.util.HashSet;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import notification.NotificationServiceGrpc;
+import schedule.ScheduleServiceGrpc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.reactive.function.client.support.WebClientAdapter;
-import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
-import reactor.util.retry.RetryBackoffSpec;
 
 @Configuration
 @SuppressWarnings("RegexpSinglelineJava")
@@ -21,38 +13,20 @@ public class ClientConfiguration {
     String base = "http://localhost:8080/";
 
     @Bean
-    public ScrapperNotificationClient beanChat() {
-        WebClient webClient = WebClient.builder().baseUrl(base).filter(withRetryableRequests()).build();
-        WebClientAdapter adapter = WebClientAdapter.create(webClient);
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(ScrapperNotificationClient.class);
+    public ManagedChannel managedChannel() {
+        return ManagedChannelBuilder.forAddress("localhost", 9090)
+            .usePlaintext()
+            .build();
     }
 
     @Bean
-    public ScrapperScheduleClient beanLinks() {
-        WebClient webClient = WebClient.builder().baseUrl(base).filter(withRetryableRequests()).build();
-        WebClientAdapter adapter = WebClientAdapter.create(webClient);
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(ScrapperScheduleClient.class);
+    public NotificationServiceGrpc.NotificationServiceBlockingStub notificationBlockingStub(ManagedChannel channel) {
+        return NotificationServiceGrpc.newBlockingStub(channel);
     }
 
-    private ExchangeFilterFunction withRetryableRequests() {
-        HashSet<Integer> codes = new HashSet<>();
-        codes.add(429);
-        codes.add(503);
-        return (request, next) -> next.exchange(request)
-            .flatMap(clientResponse -> Mono.just(clientResponse)
-                .filter(response -> codes.contains(response.statusCode().value()))
-                .flatMap(response -> clientResponse.createException())
-                .flatMap(Mono::error)
-                .thenReturn(clientResponse))
-            .retryWhen(this.retryConst());
-    }
-
-    private RetryBackoffSpec retryConst() {
-        return (Retry.fixedDelay(2 + 1, Duration.ofSeconds(2 + 2 + 1)))
-            .filter(throwable -> throwable instanceof WebClientResponseException)
-            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure());
+    @Bean
+    public ScheduleServiceGrpc.ScheduleServiceBlockingStub scheduleBlockingStub(ManagedChannel channel) {
+        return ScheduleServiceGrpc.newBlockingStub(channel);
     }
 
     @Bean

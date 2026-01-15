@@ -37,7 +37,7 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>0.6.1</version>
                 <configuration>
-                    <protoSourceRoot>${project.basedir}/src/main</protoSourceRoot>
+                    <protoSourceRoot>${project.basedir}/src/main/resources</protoSourceRoot>
                     <outputDirectory>${project.build.directory}/scrapper/src/main/java/grpc/schedule</outputDirectory>
                     <protocArtifact>com.google.protobuf:protoc:3.25.1:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
