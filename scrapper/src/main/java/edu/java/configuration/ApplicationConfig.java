@@ -1,7 +1,7 @@
 package edu.java.configuration;
 
 import edu.java.siteclients.BotClient;
-import edu.java.repos.JdbcScheduleRepository;
+import edu.java.repos.ScheduleRepository;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -48,7 +48,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public ScheduleUpdaterScheduler scheduler(BotClient client, JdbcScheduleRepository repo) {
+    public ScheduleUpdaterScheduler scheduler(BotClient client, ScheduleRepository repo) {
         return new ScheduleUpdaterScheduler(client, repo);
     }
 
@@ -67,6 +67,7 @@ public class ApplicationConfig {
         return (Retry.fixedDelay(2 + 1, Duration.ofSeconds(2)))
             .filter(throwable -> throwable instanceof WebClientResponseException)
             .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure());
+
     }
 
     @Bean
@@ -86,7 +87,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public JdbcScheduleRepository jdbcScheduleRepository(DSLContext context) {
-        return new JdbcScheduleRepository(context);
+    public ScheduleRepository jdbcScheduleRepository(DSLContext context) {
+        return new ScheduleRepository(context);
     }
 }

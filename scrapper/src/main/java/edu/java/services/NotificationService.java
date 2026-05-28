@@ -1,14 +1,14 @@
 package edu.java.services;
 
 import org.springframework.stereotype.Service;
-import edu.java.repos.JdbcNotificationRepository;
+import edu.java.repos.NotificationRepository;
 
 @Service
-public class JdbcNotificationService {
-    private final JdbcNotificationRepository repo;
+public class NotificationService {
+    private final NotificationRepository repo;
 
 
-    public JdbcNotificationService(JdbcNotificationRepository repo) {
+    public NotificationService(NotificationRepository repo) {
         this.repo = repo;
     }
 

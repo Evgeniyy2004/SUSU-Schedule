@@ -9,11 +9,11 @@ import static edu.java.jooq.Tables.GROUPS;
 import static edu.java.jooq.Tables.STUDENT;
 
 @Repository
-public class JdbcNotificationRepository {
+public class NotificationRepository {
     private final DSLContext context;
-    private final JdbcScheduleRepository scheduleRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public JdbcNotificationRepository(DSLContext context, JdbcScheduleRepository scheduleRepository) {
+    public NotificationRepository(DSLContext context, ScheduleRepository scheduleRepository) {
         this.context = context;
         this.scheduleRepository = scheduleRepository;
     }

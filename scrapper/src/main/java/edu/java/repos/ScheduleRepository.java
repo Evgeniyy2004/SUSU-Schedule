@@ -26,7 +26,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import static edu.java.jooq.Tables.CLASSES;
 import static edu.java.jooq.Tables.GROUPS;
@@ -34,7 +33,7 @@ import static edu.java.jooq.tables.Student.STUDENT;
 
 @Repository
 @SuppressWarnings("all")
-public class JdbcScheduleRepository {
+public class ScheduleRepository {
 
     private final DSLContext context;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -43,7 +42,7 @@ public class JdbcScheduleRepository {
     );
 
 
-    public JdbcScheduleRepository(DSLContext context) {
+    public ScheduleRepository(DSLContext context) {
         this.context = context;
     }
 

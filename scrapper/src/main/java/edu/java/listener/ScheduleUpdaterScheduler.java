@@ -12,7 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import edu.java.repos.JdbcScheduleRepository;
+import edu.java.repos.ScheduleRepository;
 
 @Service
 @EnableScheduling
@@ -20,9 +20,9 @@ public class ScheduleUpdaterScheduler {
 
     private final BotClient client;
 
-    private final JdbcScheduleRepository repo;
+    private final ScheduleRepository repo;
 
-    public ScheduleUpdaterScheduler(BotClient client, JdbcScheduleRepository repo) {
+    public ScheduleUpdaterScheduler(BotClient client, ScheduleRepository repo) {
         this.repo = repo;
         this.client = client;
     }

@@ -8,16 +8,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import edu.java.services.JdbcScheduleService;
+import edu.java.services.ScheduleService;
 
 @RestController
 public class ScheduleApiController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScheduleApiController.class);
-    private final JdbcScheduleService scheduleService;
+    private final ScheduleService scheduleService;
     private final ObjectMapper objectMapper;
 
-    public ScheduleApiController(ObjectMapper objectMapper, JdbcScheduleService service) {
+    public ScheduleApiController(ObjectMapper objectMapper, ScheduleService service) {
         this.scheduleService = service;
         this.objectMapper = objectMapper;
     }

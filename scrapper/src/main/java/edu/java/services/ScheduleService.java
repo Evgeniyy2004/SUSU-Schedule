@@ -3,15 +3,15 @@ package edu.java.services;
 import edu.java.model.ClassResponse;
 import java.util.List;
 import org.springframework.stereotype.Service;
-import edu.java.repos.JdbcScheduleRepository;
+import edu.java.repos.ScheduleRepository;
 
 @Service
-public class JdbcScheduleService {
+public class ScheduleService {
 
-    private final JdbcScheduleRepository repo;
+    private final ScheduleRepository repo;
 
 
-    public JdbcScheduleService(JdbcScheduleRepository repo) {
+    public ScheduleService(ScheduleRepository repo) {
         this.repo = repo;
     }
 
